@@ -92,6 +92,13 @@ export function ChatPanel({
       .then(data => {
         if (data.tables) {
           setResponse(data)
+          const newTables = Object.values(data.tables).flat()
+          const uniqueNewTables = newTables.filter(
+            table => !selectedTables.includes(table)
+          )
+          if (uniqueNewTables.length > 0) {
+            setSelectedTables([...selectedTables, ...uniqueNewTables])
+          }
         } else {
           setResponse({ tables: {} })
         }
@@ -174,37 +181,23 @@ export function ChatPanel({
             </div>
           </div>
         ) : null}
-        {/* {files.map(item => (
-          <div
-            key={item.name}
-            className="flex items-center justify-between p-4 rounded-lg "
-          >
-            <div className="flex items-center space-x-2">
-              <FileIcon />
-              <div>{item.name}</div>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() => setFiles(files.filter(f => f !== item))}
-            >
-              Remove
-            </Button>
-          </div>
-        ))} */}
         <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4 flex flex-col mb-3">
           <input
             ref={inputRef}
             type="file"
             className="hidden"
             accept=".xlsx, .xls"
+            multiple
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              const file = e.target.files?.[0]
-              if (!file) return
-              if (files.find(f => f.name === file.name)) {
-                alert('File already added')
+              const selectedFiles = Array.from(e.target.files || [])
+              const newFiles = selectedFiles.filter(
+                file => !files.some(f => f.name === file.name)
+              )
+
+              if (newFiles.length > 0) {
+                setFiles([...files, ...newFiles])
               } else {
-                // Add the file to the state
-                setFiles([...files, file])
+                alert('All selected files are already added')
               }
               e.target.value = ''
             }}
