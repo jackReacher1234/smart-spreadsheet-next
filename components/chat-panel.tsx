@@ -11,6 +11,12 @@ import { useAIState, useActions, useUIState } from 'ai/rsc'
 import type { AI } from '@/lib/chat/actions'
 import { nanoid } from 'nanoid'
 import { UserMessage } from './stocks/message'
+import { FileIcon } from '@radix-ui/react-icons'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
 
 export interface ChatPanelProps {
   id?: string
@@ -33,29 +39,32 @@ export function ChatPanel({
   const [messages, setMessages] = useUIState<typeof AI>()
   const { submitUserMessage } = useActions()
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
+  const [exampleMessages, setExampleMessages] = React.useState<any[]>([])
+  const [files, setFiles] = React.useState<File[]>([])
+  const inputRef = React.useRef<any>(null)
 
-  const exampleMessages = [
-    {
-      heading: 'What are the',
-      subheading: 'trending memecoins today?',
-      message: `What are the trending memecoins today?`
-    },
-    {
-      heading: 'What is the price of',
-      subheading: '$DOGE right now?',
-      message: 'What is the price of $DOGE right now?'
-    },
-    {
-      heading: 'I would like to buy',
-      subheading: '42 $DOGE',
-      message: `I would like to buy 42 $DOGE`
-    },
-    {
-      heading: 'What are some',
-      subheading: `recent events about $DOGE?`,
-      message: `What are some recent events about $DOGE?`
-    }
-  ]
+  // const exampleMessages = [
+  //   {
+  //     heading: 'What are the',
+  //     subheading: 'trending memecoins today?',
+  //     message: `What are the trending memecoins today?`
+  //   },
+  //   {
+  //     heading: 'What is the price of',
+  //     subheading: '$DOGE right now?',
+  //     message: 'What is the price of $DOGE right now?'
+  //   },
+  //   {
+  //     heading: 'I would like to buy',
+  //     subheading: '42 $DOGE',
+  //     message: `I would like to buy 42 $DOGE`
+  //   },
+  //   {
+  //     heading: 'What are some',
+  //     subheading: `recent events about $DOGE?`,
+  //     message: `What are some recent events about $DOGE?`
+  //   }
+  // ]
 
   return (
     <div className="fixed inset-x-0 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
@@ -129,7 +138,32 @@ export function ChatPanel({
           </div>
         ) : null}
 
-        <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4">
+        <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4 flex flex-col mb-3">
+          <input
+            ref={inputRef}
+            type="file"
+            className="hidden"
+            accept=".xlsx, .xls"
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              setFiles([...files, file])
+            }}
+          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                className="rounded-full bg-background p-3 flex"
+                onClick={() => inputRef.current?.click?.()}
+              >
+                <FileIcon />
+                <div className="ml-2">Choose a file to get started</div>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Choose file</TooltipContent>
+          </Tooltip>
+
           <PromptForm input={input} setInput={setInput} />
           <FooterText className="hidden sm:block" />
         </div>
