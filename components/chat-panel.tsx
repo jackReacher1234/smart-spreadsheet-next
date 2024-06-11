@@ -84,7 +84,7 @@ export function ChatPanel({
       formData.append('files', file)
     }
 
-    fetch('https://api.nextify.dev/give_tables', {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/give_tables`, {
       method: 'POST',
       body: formData
     })
