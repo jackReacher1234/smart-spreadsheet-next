@@ -17,6 +17,8 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip'
+import { useStore } from '@/app/store/store'
+import { set } from 'date-fns'
 
 export interface ChatPanelProps {
   id?: string
@@ -40,8 +42,15 @@ export function ChatPanel({
   const { submitUserMessage } = useActions()
   const [shareDialogOpen, setShareDialogOpen] = React.useState(false)
   const [exampleMessages, setExampleMessages] = React.useState<any[]>([])
-  const [files, setFiles] = React.useState<File[]>([])
   const inputRef = React.useRef<any>(null)
+
+  const files = useStore(state => state.files)
+  const tables = useStore(state => state.tables)
+  const setFiles = useStore(state => state.setFiles)
+  const setTables = useStore(state => state.setTables)
+  const selectedTables = useStore(state => state.selectedTables)
+  const setSelectedTables = useStore(state => state.setSelectedTables)
+
 
   // const exampleMessages = [
   //   {
@@ -65,6 +74,27 @@ export function ChatPanel({
   //     message: `What are some recent events about $DOGE?`
   //   }
   // ]
+
+  React.useEffect(() => {
+    if (!files.length) {
+      return setTables([])
+    }
+    const formData = new FormData()
+    for (const file of files) {
+      formData.append('files', file)
+    }
+
+    fetch('http://localhost:8000/give_tables', {
+      method: 'POST',
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        setTables(data.tables)
+        setSelectedTables(data.tables)
+      })
+      .catch(err => console.log(err))
+  }, [files])
 
   return (
     <div className="fixed inset-x-0 bottom-0 w-full bg-gradient-to-b from-muted/30 from-0% to-muted/30 to-50% duration-300 ease-in-out animate-in dark:from-background/10 dark:from-10% dark:to-background/80 peer-[[data-state=open]]:group-[]:lg:pl-[250px] peer-[[data-state=open]]:group-[]:xl:pl-[300px]">
@@ -137,7 +167,40 @@ export function ChatPanel({
             </div>
           </div>
         ) : null}
-
+        {files.map(item => (
+          <div
+            key={item.name}
+            className="flex items-center justify-between p-4 rounded-lg "
+          >
+            <div className="flex items-center space-x-2">
+              <FileIcon />
+              <div>{item.name}</div>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setFiles(files.filter(f => f !== item))}
+            >
+              Remove
+            </Button>
+          </div>
+        ))}
+        {tables.map(item => (
+          <div
+            onClick={() => {
+              // if item is already in selected tables, remove it else add it
+              if (selectedTables.includes(item)) {
+                setSelectedTables(selectedTables.filter(t => t !== item))
+              } else {
+                setSelectedTables([...selectedTables, item])
+              }
+            }}
+            className={`flex items-center justify-between p-4 rounded-lg cursor-pointer ${
+              selectedTables.includes(item) ? 'bg-blue-100' : ''
+            }`}
+          >
+            {item?.[0]?.[0] || 'Un named table'}
+          </div>
+        ))}
         <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4 flex flex-col mb-3">
           <input
             ref={inputRef}
