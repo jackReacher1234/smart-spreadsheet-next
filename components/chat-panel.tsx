@@ -214,7 +214,7 @@ export function ChatPanel({
                 disabled={isLoading}
               >
                 {isLoading ? <SpinnerMessage noLogo /> : <FileIcon />}
-                <div className="ml-2">Choose a file to get started</div>
+                <div className="ml-2">Choose file(s)</div>
               </Button>
             </TooltipTrigger>
             <TooltipContent>Choose file</TooltipContent>
