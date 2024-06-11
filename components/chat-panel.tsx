@@ -10,7 +10,7 @@ import { ChatShareDialog } from '@/components/chat-share-dialog'
 import { useAIState, useActions, useUIState } from 'ai/rsc'
 import type { AI } from '@/lib/chat/actions'
 import { nanoid } from 'nanoid'
-import { UserMessage } from './stocks/message'
+import { SpinnerMessage, UserMessage } from './stocks/message'
 import { FileIcon } from '@radix-ui/react-icons'
 import {
   Tooltip,
@@ -108,6 +108,7 @@ export function ChatPanel({
         console.log(err)
         alert(err?.message || err)
         setResponse({ tables: {} })
+        setSelectedTables([])
         setIsLoading(false)
       })
   }, [files])
@@ -210,8 +211,9 @@ export function ChatPanel({
                 variant="outline"
                 className="rounded-full bg-background p-3 flex"
                 onClick={() => inputRef.current?.click?.()}
+                disabled={isLoading}
               >
-                <FileIcon />
+                {isLoading ? <SpinnerMessage noLogo /> : <FileIcon />}
                 <div className="ml-2">Choose a file to get started</div>
               </Button>
             </TooltipTrigger>
