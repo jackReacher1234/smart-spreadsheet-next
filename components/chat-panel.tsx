@@ -96,7 +96,7 @@ export function ChatPanel({
           setResponse(data)
           const newTables = Object.values(data.tables).flat()
           setSelectedTables(newTables)
-          if (Object.keys(data.tables).length > 1) {
+          if (Object.keys(data.tables).length > 0) {
             setManageModalVisible(true)
           }
         } else {
