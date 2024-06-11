@@ -51,6 +51,7 @@ export function ChatPanel({
   const setSelectedTables = useStore(state => state.setSelectedTables)
   const response = useStore(state => state.response)
   const setResponse = useStore(state => state.setResponse)
+  const [isLoading, setIsLoading] = React.useState(false)
 
   // const exampleMessages = [
   //   {
@@ -84,6 +85,7 @@ export function ChatPanel({
       formData.append('files', file)
     }
 
+    setIsLoading(true)
     fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/give_tables`, {
       method: 'POST',
       body: formData
@@ -93,23 +95,20 @@ export function ChatPanel({
         if (data.tables) {
           setResponse(data)
           const newTables = Object.values(data.tables).flat()
-          const uniqueNewTables = newTables.filter(
-            table => !selectedTables.includes(table)
-          )
-          if (uniqueNewTables.length > 0) {
-            setSelectedTables([...selectedTables, ...uniqueNewTables])
-          }
+          setSelectedTables(newTables)
           if (Object.keys(data.tables).length > 1) {
             setManageModalVisible(true)
           }
         } else {
           setResponse({ tables: {} })
         }
+        setIsLoading(false)
       })
       .catch(err => {
         console.log(err)
         alert(err?.message || err)
         setResponse({ tables: {} })
+        setIsLoading(false)
       })
   }, [files])
 

@@ -33,6 +33,8 @@ export function PromptForm({
   const [_, setMessages] = useUIState<typeof AI>()
   const selectedTables = useStore(state => state.selectedTables)
 
+  console.log({ selectedTables })
+
   React.useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus()
