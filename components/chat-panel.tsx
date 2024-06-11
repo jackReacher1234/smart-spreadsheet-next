@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/tooltip'
 import { useStore } from '@/app/store/store'
 import { set } from 'date-fns'
+import { ManageDataDialog } from './manage-data-dialog'
 
 export interface ChatPanelProps {
   id?: string
@@ -44,13 +45,12 @@ export function ChatPanel({
   const [exampleMessages, setExampleMessages] = React.useState<any[]>([])
   const inputRef = React.useRef<any>(null)
 
-  const files = useStore(state => state.files)
-  const tables = useStore(state => state.tables)
-  const setFiles = useStore(state => state.setFiles)
-  const setTables = useStore(state => state.setTables)
+  const [files, setFiles] = React.useState<File[]>([])
+  const [manageModalVisible, setManageModalVisible] = React.useState(false)
   const selectedTables = useStore(state => state.selectedTables)
   const setSelectedTables = useStore(state => state.setSelectedTables)
-
+  const response = useStore(state => state.response)
+  const setResponse = useStore(state => state.setResponse)
 
   // const exampleMessages = [
   //   {
@@ -77,7 +77,7 @@ export function ChatPanel({
 
   React.useEffect(() => {
     if (!files.length) {
-      return setTables([])
+      return setSelectedTables([])
     }
     const formData = new FormData()
     for (const file of files) {
@@ -90,10 +90,17 @@ export function ChatPanel({
     })
       .then(response => response.json())
       .then(data => {
-        setTables(data.tables)
-        setSelectedTables(data.tables)
+        if (data.tables) {
+          setResponse(data)
+        } else {
+          setResponse({ tables: {} })
+        }
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        alert(err?.message || err)
+        setResponse({ tables: {} })
+      })
   }, [files])
 
   return (
@@ -167,7 +174,7 @@ export function ChatPanel({
             </div>
           </div>
         ) : null}
-        {files.map(item => (
+        {/* {files.map(item => (
           <div
             key={item.name}
             className="flex items-center justify-between p-4 rounded-lg "
@@ -183,24 +190,7 @@ export function ChatPanel({
               Remove
             </Button>
           </div>
-        ))}
-        {tables.map(item => (
-          <div
-            onClick={() => {
-              // if item is already in selected tables, remove it else add it
-              if (selectedTables.includes(item)) {
-                setSelectedTables(selectedTables.filter(t => t !== item))
-              } else {
-                setSelectedTables([...selectedTables, item])
-              }
-            }}
-            className={`flex items-center justify-between p-4 rounded-lg cursor-pointer ${
-              selectedTables.includes(item) ? 'bg-blue-100' : ''
-            }`}
-          >
-            {item?.[0]?.[0] || 'Un named table'}
-          </div>
-        ))}
+        ))} */}
         <div className="space-y-4 border-t bg-background px-4 py-2 shadow-lg sm:rounded-t-xl sm:border md:py-4 flex flex-col mb-3">
           <input
             ref={inputRef}
@@ -210,7 +200,13 @@ export function ChatPanel({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
               const file = e.target.files?.[0]
               if (!file) return
-              setFiles([...files, file])
+              if (files.find(f => f.name === file.name)) {
+                alert('File already added')
+              } else {
+                // Add the file to the state
+                setFiles([...files, file])
+              }
+              e.target.value = ''
             }}
           />
           <Tooltip>
@@ -226,6 +222,29 @@ export function ChatPanel({
             </TooltipTrigger>
             <TooltipContent>Choose file</TooltipContent>
           </Tooltip>
+
+          <ManageDataDialog
+            open={manageModalVisible}
+            onOpenChange={setManageModalVisible}
+          />
+
+          {Object.keys(response.tables).length > 0 ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="rounded-full bg-background p-3 flex"
+                  onClick={() => setManageModalVisible(true)}
+                >
+                  <div className="ml-2">Manage data source</div>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                Control data source for optimal response! By default all tables
+                are selected.
+              </TooltipContent>
+            </Tooltip>
+          ) : null}
 
           <PromptForm input={input} setInput={setInput} />
           <FooterText className="hidden sm:block" />
