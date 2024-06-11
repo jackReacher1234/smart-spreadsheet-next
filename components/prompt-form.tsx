@@ -103,7 +103,7 @@ export function PromptForm({
         <div className="absolute right-0 top-[13px] sm:right-4">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button type="submit" size="icon" disabled={input === ''}>
+              <Button type="submit" size="icon" disabled={input === '' || !selectedTables.length}>
                 <IconArrowElbow />
                 <span className="sr-only">Send message</span>
               </Button>
