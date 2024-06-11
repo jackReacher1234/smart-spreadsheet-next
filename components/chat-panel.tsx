@@ -99,6 +99,9 @@ export function ChatPanel({
           if (uniqueNewTables.length > 0) {
             setSelectedTables([...selectedTables, ...uniqueNewTables])
           }
+          if (Object.keys(data.tables).length > 1) {
+            setManageModalVisible(true)
+          }
         } else {
           setResponse({ tables: {} })
         }
