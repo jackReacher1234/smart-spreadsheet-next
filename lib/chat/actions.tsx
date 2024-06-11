@@ -507,7 +507,6 @@ export const AI = createAI<AIState, UIState>({
 
     if (session && session.user) {
       const aiState: any = getAIState()
-
       if (aiState) {
         const uiState = getUIStateFromAIState(aiState)
         return uiState
