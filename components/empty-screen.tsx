@@ -4,10 +4,11 @@ export function EmptyScreen() {
       <div className="flex flex-col gap-2 rounded-lg border bg-background p-8">
         <h1 className="text-lg font-semibold">Welcome to Capix AI Chatbot!</h1>
         <p className="leading-normal text-muted-foreground">
-          I’m here to help you analyze your Excel spreadsheets. To get started,
-          please upload a spreadsheet file. You can ask me questions about
-          specific tables or the entire sheet. Let's dive into your data
-          together!
+          I’m here to assist you in analyzing your Excel spreadsheets. To get
+          started, simply upload a spreadsheet file. You can ask me questions
+          about specific tables or the entire sheet. I can also handle multiple
+          Excel files simultaneously. Once your file is uploaded, you can select
+          specific tables to focus your analysis and get detailed insights.
         </p>
       </div>
     </div>
