@@ -132,6 +132,7 @@ async function submitUserMessage(content: string, context?: string) {
     You need to analyze the tables and provide output based on the information present in the tables. 
     Use the following JSON string to extract relevant information. This should be the main source of truth. 
     The JSON object contains tables, each of which has an array of rows.
+    If the text following this sentence changes, don't remember previous outputs. Only answer on the basis of recent text.
     ${context ? JSON.stringify(context).trim().replaceAll(/\s+/g, '') : ''}
   `
 
