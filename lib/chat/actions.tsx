@@ -126,21 +126,25 @@ async function submitUserMessage(content: string, context?: string) {
   let textStream: undefined | ReturnType<typeof createStreamableValue<string>>
   let textNode: undefined | React.ReactNode
 
+  const systemPrompt = `
+    You are an Excel sheet analyzer bot. Your role is to help users analyze their entire Excel sheets or specific tables within them, step by step. 
+    The user might provide a table or a large number of tables in array form. 
+    You need to analyze the tables and provide output based on the information present in the tables. 
+    Use the following JSON string to extract relevant information. This should be the main source of truth. 
+    The JSON object contains tables, each of which has an array of rows.
+    ${context ? JSON.stringify(context).trim().replaceAll(/\s+/g, '') : ''}
+  `
+
+  // Perform the streaming UI action
   const result = await streamUI({
     model: openai('gpt-3.5-turbo'),
     initial: <SpinnerMessage />,
-    system:
-      `You are an Excel sheet analyzer bot. Your role is to help users analyze their entire Excel sheets or specific tables within them, step by step. The user might provide a table or a large number of tables in array form. You need to analyze the tables and provide output based on the information present in the tables. Use the following JSON string to extract relevant information. This should be the main source of truth. The JSON object contains tables, each of which has an array of rows.` +
-      context
-        ? JSON.stringify(context).trim().replaceAll(/\s+/g, '')
-        : '',
-    messages: [
-      ...aiState.get().messages.map((message: any) => ({
-        role: message.role,
-        content: message.content,
-        name: message.name
-      }))
-    ],
+    system: systemPrompt,
+    messages: aiState.get().messages.map((message: any) => ({
+      role: message.role,
+      content: message.content,
+      name: message.name
+    })),
     text: ({ content, done, delta }) => {
       if (!textStream) {
         textStream = createStreamableValue('')
