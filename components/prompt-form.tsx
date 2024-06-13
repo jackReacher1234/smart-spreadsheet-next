@@ -18,6 +18,7 @@ import { useEnterSubmit } from '@/lib/hooks/use-enter-submit'
 import { nanoid } from 'nanoid'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/app/store/store'
+import { spinner } from './stocks'
 
 export function PromptForm({
   input,
@@ -84,7 +85,7 @@ export function PromptForm({
               onClick={() => onFileAddClicked?.()}
               disabled={isLoading}
             >
-              <IconPlus />
+              {isLoading ? spinner: <IconPlus />}
               <span className="sr-only">Add file(s)</span>
             </Button>
           </TooltipTrigger>
