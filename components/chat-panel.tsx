@@ -1,5 +1,4 @@
 import * as React from 'react'
-
 import { shareChat } from '@/app/actions'
 import { Button } from '@/components/ui/button'
 import { PromptForm } from '@/components/prompt-form'
@@ -20,6 +19,7 @@ import {
 import { useStore } from '@/app/store/store'
 import { set } from 'date-fns'
 import { ManageDataDialog } from './manage-data-dialog'
+import _ from 'lodash'
 
 export interface ChatPanelProps {
   id?: string
@@ -93,10 +93,27 @@ export function ChatPanel({
       .then(response => response.json())
       .then(data => {
         if (data.tables) {
-          setResponse(data)
           const newTables = Object.values(data.tables).flat()
+          // let finalSelectedTable = newTables
+          // const existingTables = Object.values(response.tables).flat()
+          // for (let i = 0; i < newTables.length; i++) {
+          //   const currentTable = newTables[i]
+          //   const wasPresentInPreviousResponse = existingTables.some(item =>
+          //     _.isEqual(item, currentTable)
+          //   )
+          //   const isPresentInSelectedTables = selectedTables.some(item =>
+          //     _.isEqual(item, currentTable)
+          //   )
+          //   if (wasPresentInPreviousResponse && !isPresentInSelectedTables) {
+          //     finalSelectedTable = finalSelectedTable.filter(
+          //       item => !_.isEqual(item, currentTable)
+          //     )
+          //   }
+          // }
+          // setSelectedTables(finalSelectedTable)
           setSelectedTables(newTables)
           if (Object.keys(data.tables).length > 0) {
+            setResponse(data)
             setManageModalVisible(true)
           }
         } else {
@@ -205,20 +222,7 @@ export function ChatPanel({
               e.target.value = ''
             }}
           />
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="outline"
-                className="rounded-full bg-background p-3 flex"
-                onClick={() => inputRef.current?.click?.()}
-                disabled={isLoading}
-              >
-                {isLoading ? <SpinnerMessage noLogo /> : <FileIcon />}
-                <div className="ml-2">Choose file(s)</div>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Choose file</TooltipContent>
-          </Tooltip>
+
 
           <ManageDataDialog
             open={manageModalVisible}
@@ -243,7 +247,14 @@ export function ChatPanel({
             </Tooltip>
           ) : null}
 
-          <PromptForm input={input} setInput={setInput} />
+          <PromptForm
+            input={input}
+            setInput={setInput}
+            onFileAddClicked={() => {
+              inputRef.current?.click?.()
+            }}
+            isLoading={isLoading}
+          />
           <FooterText className="hidden sm:block" />
         </div>
       </div>
